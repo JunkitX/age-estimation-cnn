@@ -179,3 +179,15 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Project data and training outputs
+UTKface/
+data/raw/
+data/external_test/
+age_estimation_v2/checkpoints/*
+age_estimation_v2/runs/*
+!age_estimation_v2/checkpoints/.gitkeep
+!age_estimation_v2/runs/.gitkeep
+*.pth
+*.pt
+*.onnx

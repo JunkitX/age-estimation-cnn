@@ -1,0 +1,6 @@
+device: auto
+image_size: 224
+min_age: 0
+max_age: 100
+face_margin: 0.35
+checkpoint: "age_estimation_v2/checkpoints/best_model.pth"
