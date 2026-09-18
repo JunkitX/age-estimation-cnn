@@ -1,6 +1,11 @@
+# Runtime dependencies.
+#
+# If you need a CUDA-specific PyTorch build, install torch/torchvision first
+# from https://pytorch.org/get-started/locally/, then install this file.
+torch
+torchvision
 Pillow
 numpy
 PyYAML
 opencv-python==4.10.0.84
 tqdm
-matplotlib

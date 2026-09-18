@@ -1,0 +1,7 @@
+# Optional dependencies for notebooks, analysis, and visualization.
+-r requirements.txt
+matplotlib
+pandas
+scikit-learn
+seaborn
+ipykernel

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import models
-from torchvision.models import EfficientNet_B0_Weights, ResNet18_Weights, ResNet34_Weights
+from torchvision.models import ConvNeXt_Tiny_Weights, EfficientNet_B0_Weights, ResNet18_Weights, ResNet34_Weights
 
 
 class AgeDistributionModel(nn.Module):
@@ -24,6 +24,11 @@ class AgeDistributionModel(nn.Module):
             net = models.efficientnet_b0(weights=weights)
             in_features = net.classifier[-1].in_features
             net.classifier = nn.Sequential(nn.Dropout(dropout), nn.Linear(in_features, num_ages))
+        elif backbone == "convnext_tiny":
+            weights = ConvNeXt_Tiny_Weights.IMAGENET1K_V1 if pretrained else None
+            net = models.convnext_tiny(weights=weights)
+            in_features = net.classifier[-1].in_features
+            net.classifier[-1] = nn.Sequential(nn.Dropout(dropout), nn.Linear(in_features, num_ages))
         else:
             raise ValueError(f"Unsupported backbone: {backbone}")
 
@@ -48,4 +53,3 @@ def expected_age_from_logits(logits, min_age=0):
     probabilities = torch.softmax(logits, dim=1)
     ages = torch.arange(min_age, min_age + logits.shape[1], device=logits.device, dtype=torch.float32)
     return torch.sum(probabilities * ages, dim=1), probabilities
-

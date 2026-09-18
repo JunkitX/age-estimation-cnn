@@ -1,7 +1,12 @@
 import argparse
+import sys
+from pathlib import Path
 from tkinter import Button, Label, Tk, filedialog
 
 from PIL import ImageTk
+
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from age_estimation_v2.inference.predictor import AgePredictor
 
@@ -10,7 +15,7 @@ class AgeEstimatorApp:
     def __init__(self, root, predictor):
         self.root = root
         self.predictor = predictor
-        self.root.title("Age Estimation V2")
+        self.root.title("年龄估计 V2")
         self.root.geometry("760x720")
 
         self.image_label = Label(root)
@@ -67,14 +72,20 @@ class AgeEstimatorApp:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", default="age_estimation_v2/checkpoints/best_model.pth")
+    parser.add_argument("--checkpoint", default=None)
     parser.add_argument("--config", default="age_estimation_v2/configs/train.yaml")
+    parser.add_argument("--infer-config", default="age_estimation_v2/configs/infer.yaml")
     parser.add_argument("--no-face-crop", action="store_true")
     args = parser.parse_args()
 
-    predictor = AgePredictor(args.checkpoint, config_path=args.config, crop_face=not args.no_face_crop)
+    predictor = AgePredictor(
+        args.checkpoint,
+        config_path=args.config,
+        infer_config_path=args.infer_config,
+        crop_face=not args.no_face_crop,
+    )
     root = Tk()
-    app = AgeEstimatorApp(root, predictor)
+    AgeEstimatorApp(root, predictor)
     root.mainloop()
 
 

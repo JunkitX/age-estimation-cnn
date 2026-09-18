@@ -1,0 +1,41 @@
+seed: 42
+device: auto
+
+data:
+  data_dir: "UTKface/UTKface_Aligned&cropped/UTKFace"
+  split_csv: "age_estimation_v2/data/splits/utkface_split.csv"
+  image_size: 224
+  min_age: 0
+  max_age: 100
+  stratify_age: true
+  age_bins:
+    - [0, 12]
+    - [13, 19]
+    - [20, 35]
+    - [36, 50]
+    - [51, 100]
+  num_workers: 0
+
+model:
+  backbone: convnext_tiny
+  pretrained: true
+  dropout: 0.3
+
+train:
+  batch_size: 16
+  epochs: 40
+  learning_rate: 0.0002
+  weight_decay: 0.0001
+  loss_type: gaussian_kl_huber
+  label_sigma: 2.0
+  reg_weight: 0.1
+  huber_beta: 1.0
+  mae_weight: 0.2
+  amp: true
+  grad_clip_norm: 1.0
+  lr_factor: 0.5
+  lr_patience: 2
+  min_learning_rate: 0.000001
+  patience: 8
+  checkpoint_dir: "age_estimation_v2/checkpoints/convnext_tiny"
+  run_dir: "age_estimation_v2/runs/convnext_tiny"

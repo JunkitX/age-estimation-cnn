@@ -11,15 +11,30 @@ from age_estimation_v2.training.utils import load_checkpoint
 
 
 class AgePredictor:
-    def __init__(self, checkpoint, config_path="age_estimation_v2/configs/train.yaml", device="auto", crop_face=True):
+    def __init__(
+        self,
+        checkpoint=None,
+        config_path="age_estimation_v2/configs/train.yaml",
+        infer_config_path=None,
+        device="auto",
+        crop_face=True,
+    ):
         self.config = load_config(config_path)
+        self.infer_config = load_config(infer_config_path) if infer_config_path else {}
+        checkpoint = checkpoint or self.infer_config.get("checkpoint")
+        if checkpoint is None:
+            raise ValueError("A checkpoint path is required.")
+
         if device == "auto":
-            device = self.config.get("device", "auto")
+            device = self.infer_config.get("device", self.config.get("device", "auto"))
         self.device = select_device(device)
-        self.min_age = int(self.config["data"].get("min_age", 0))
-        self.max_age = int(self.config["data"].get("max_age", 100))
+        data_config = self.config["data"]
+        self.min_age = int(self.infer_config.get("min_age", data_config.get("min_age", 0)))
+        self.max_age = int(self.infer_config.get("max_age", data_config.get("max_age", 100)))
+        self.face_margin = float(self.infer_config.get("face_margin", 0.35))
         self.crop_face = crop_face
-        self.transform = build_eval_transform(int(self.config["data"].get("image_size", 224)))
+        image_size = int(self.infer_config.get("image_size", data_config.get("image_size", 224)))
+        self.transform = build_eval_transform(image_size)
         self.model = build_model(self.config).to(self.device)
         self.checkpoint = load_checkpoint(checkpoint, self.model, self.device)
         self.model.eval()
@@ -34,7 +49,7 @@ class AgePredictor:
         crop_status = "disabled"
         face_image = image
         if self.crop_face:
-            face_image, face_box, crop_status = crop_largest_face(image)
+            face_image, face_box, crop_status = crop_largest_face(image, margin=self.face_margin)
 
         tensor = self.transform(face_image).unsqueeze(0).to(self.device)
         flipped = self.transform(face_image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)).unsqueeze(0).to(self.device)
@@ -62,4 +77,3 @@ class AgePredictor:
 
     def predict_path(self, image_path):
         return self.predict_image(Path(image_path))
-

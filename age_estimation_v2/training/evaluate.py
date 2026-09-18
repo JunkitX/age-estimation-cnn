@@ -64,6 +64,8 @@ def main():
             seed=int(config.get("seed", 42)),
             min_age=int(config["data"].get("min_age", 0)),
             max_age=int(config["data"].get("max_age", 100)),
+            stratify_age=bool(config["data"].get("stratify_age", True)),
+            age_bins=[tuple(age_bin) for age_bin in config["data"].get("age_bins", [])],
         )
         print(f"Created split CSV with {total} samples: {counts}")
 
